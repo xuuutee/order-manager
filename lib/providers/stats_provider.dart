@@ -5,7 +5,7 @@ import '../services/supabase_service.dart';
 class StatsProvider extends ChangeNotifier {
   final SupabaseService _service = SupabaseService();
 
-  bool _isLoading = false;
+  bool _isLoading = true; // 初始加载态，避免首帧显示全 0
   String? _error;
 
   // 仪表盘数据

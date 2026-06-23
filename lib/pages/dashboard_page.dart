@@ -6,7 +6,6 @@ import '../utils/currency_formatter.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/order_card.dart';
 import '../widgets/empty_state.dart';
-import '../widgets/loading_indicator.dart';
 import '../widgets/quick_create_card.dart';
 import 'order_detail_page.dart';
 

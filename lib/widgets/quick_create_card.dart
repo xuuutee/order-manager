@@ -309,8 +309,24 @@ class _QuickCreateCardState extends State<QuickCreateCard> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isSaving = true);
+
     // 自动生成订单编号
-    final orderNo = await OrderNoGenerator.generate();
+    final String orderNo;
+    try {
+      orderNo = await OrderNoGenerator.generate();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('生成订单编号失败，请检查网络后重试'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
 
     final data = {
       'order_no': orderNo,
@@ -325,8 +341,6 @@ class _QuickCreateCardState extends State<QuickCreateCard> {
       'status': OrderStatus.pending, // 新建默认"待处理"
       'remark': _remarkCtrl.text.trim(),
     };
-
-    setState(() => _isSaving = true);
 
     final provider = context.read<OrderProvider>();
     final success = await provider.createOrder(data);
