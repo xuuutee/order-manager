@@ -8,6 +8,7 @@ import '../widgets/order_card.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/quick_create_card.dart';
 import 'order_detail_page.dart';
+import 'settings_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -38,6 +39,14 @@ class _DashboardPageState extends State<DashboardPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => stats.loadDashboard(),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
+              );
+            },
           ),
         ],
       ),

@@ -11,6 +11,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get userEmail => _client.auth.currentUser?.email;
 
   /// 检查当前登录会话
   Future<void> checkAuth() async {
