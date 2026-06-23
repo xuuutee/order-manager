@@ -1,0 +1,139 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config/app_config.dart';
+import 'config/app_theme.dart';
+import 'providers/auth_provider.dart';
+import 'providers/stats_provider.dart';
+import 'providers/order_type_provider.dart';
+import 'providers/order_provider.dart';
+import 'pages/login_page.dart';
+import 'pages/dashboard_page.dart';
+import 'pages/order_list_page.dart';
+import 'pages/order_form_page.dart';
+import 'pages/finance_stats_page.dart';
+import 'widgets/update_checker.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: AppConfig.supabaseUrl,
+    publishableKey: AppConfig.supabaseAnonKey,
+  );
+
+  runApp(const OrderManagerApp());
+}
+
+class OrderManagerApp extends StatelessWidget {
+  const OrderManagerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuth()),
+        ChangeNotifierProvider(create: (_) => StatsProvider()),
+        ChangeNotifierProvider(create: (_) => OrderTypeProvider()..loadTypes()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
+      ],
+      child: MaterialApp(
+        title: '订单管理',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: ThemeMode.system,
+        home: const AuthGate(),
+      ),
+    );
+  }
+}
+
+/// 登录状态路由守卫
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+
+    if (auth.isLoggedIn) {
+      return const MainShell();
+    }
+
+    return const LoginPage();
+  }
+}
+
+/// 主页面壳子 — 包含底部导航栏
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
+
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> {
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // 登录后检查版本更新
+    Future.microtask(() => UpdateChecker.checkAndShow(context));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: const [
+          RepaintBoundary(child: DashboardPage()),
+          RepaintBoundary(child: OrderListPage()),
+          RepaintBoundary(child: FinanceStatsPage()),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() => _currentIndex = index);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: '工作台',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long),
+            label: '订单',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart_outlined),
+            selectedIcon: Icon(Icons.bar_chart),
+            label: '财务',
+          ),
+        ],
+      ),
+      floatingActionButton: _currentIndex == 1
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const OrderFormPage(),
+                  ),
+                );
+                // 从新建/编辑页返回后，重新加载确保列表最新
+                if (mounted) {
+                  context.read<OrderProvider>().loadOrders();
+                }
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('发布订单'),
+            )
+          : null,
+    );
+  }
+}
