@@ -145,22 +145,33 @@ class _OrderFormPageState extends State<OrderFormPage> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _orderTypeId,
-                    decoration: const InputDecoration(
-                      labelText: '订单类型',
-                      border: OutlineInputBorder(),
-                    ),
-                    hint: const Text('选择类型'),
-                    isExpanded: true,
-                    items: orderTypes.map((t) {
-                      return DropdownMenuItem(
-                        value: t.id,
-                        child: Text(t.name, overflow: TextOverflow.ellipsis),
-                      );
-                    }).toList(),
-                    onChanged: (v) => setState(() => _orderTypeId = v),
-                  ),
+                  child: orderTypes.isEmpty
+                      ? TextFormField(
+                          enabled: false,
+                          decoration: InputDecoration(
+                            labelText: '订单类型',
+                            hintText: '暂无可用类型',
+                            border: OutlineInputBorder(),
+                          ),
+                        )
+                      : DropdownButtonFormField<String>(
+                          value: _orderTypeId,
+                          decoration: const InputDecoration(
+                            labelText: '订单类型',
+                            border: OutlineInputBorder(),
+                          ),
+                          hint: const Text('选择类型'),
+                          isExpanded: true,
+                          items: orderTypes.map((t) {
+                            return DropdownMenuItem(
+                              value: t.id,
+                              child: Text(t.name,
+                                  overflow: TextOverflow.ellipsis),
+                            );
+                          }).toList(),
+                          onChanged: (v) =>
+                              setState(() => _orderTypeId = v),
+                        ),
                 ),
               ],
             ),

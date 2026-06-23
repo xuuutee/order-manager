@@ -149,23 +149,36 @@ class _QuickCreateCardState extends State<QuickCreateCard> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _orderTypeId,
-                      decoration: const InputDecoration(
-                        labelText: '订单类型',
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      hint: const Text('选择类型', style: TextStyle(fontSize: 14)),
-                      isExpanded: true,
-                      items: orderTypes.map((t) {
-                        return DropdownMenuItem(
-                          value: t.id,
-                          child: Text(t.name, overflow: TextOverflow.ellipsis),
-                        );
-                      }).toList(),
-                      onChanged: (v) => setState(() => _orderTypeId = v),
-                    ),
+                    child: orderTypes.isEmpty
+                        ? TextFormField(
+                            enabled: false,
+                            decoration: InputDecoration(
+                              labelText: '订单类型',
+                              hintText: '暂无可用类型',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                          )
+                        : DropdownButtonFormField<String>(
+                            value: _orderTypeId,
+                            decoration: const InputDecoration(
+                              labelText: '订单类型',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            hint: const Text('选择类型',
+                                style: TextStyle(fontSize: 14)),
+                            isExpanded: true,
+                            items: orderTypes.map((t) {
+                              return DropdownMenuItem(
+                                value: t.id,
+                                child: Text(t.name,
+                                    overflow: TextOverflow.ellipsis),
+                              );
+                            }).toList(),
+                            onChanged: (v) =>
+                                setState(() => _orderTypeId = v),
+                          ),
                   ),
                 ],
               ),

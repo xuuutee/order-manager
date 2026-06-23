@@ -42,12 +42,45 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
       ),
-      body: stats.isLoading
-          ? const LoadingIndicator(message: '加载中...')
-          : RefreshIndicator(
+      body: RefreshIndicator(
               onRefresh: () => stats.loadDashboard(),
               child: CustomScrollView(
                 slivers: [
+                  // 错误提示条
+                  if (stats.error != null)
+                    SliverToBoxAdapter(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.errorContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline,
+                                size: 18,
+                                color: theme.colorScheme.error),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                stats.error!,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onErrorContainer,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => stats.loadDashboard(),
+                              child: const Text('重试'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // 主要内容
                   SliverPadding(
                     padding: const EdgeInsets.all(16),
                     sliver: SliverList(
