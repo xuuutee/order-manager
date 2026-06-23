@@ -1,7 +1,7 @@
 name: order_manager
 description: 工作室订单管理系统 MVP
 publish_to: 'none'
-version: 1.0.4+4
+version: 1.0.5+5
 
 environment:
   sdk: '>=3.2.0 <4.0.0'

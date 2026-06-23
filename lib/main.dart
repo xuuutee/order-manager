@@ -50,17 +50,32 @@ class OrderManagerApp extends StatelessWidget {
 }
 
 /// 登录状态路由守卫
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _wasLoggedIn = false;
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
 
     if (auth.isLoggedIn) {
+      // 登录成功后重新加载订单类型（首次启动时被 RLS 拦截了）
+      if (!_wasLoggedIn) {
+        _wasLoggedIn = true;
+        Future.microtask(() {
+          context.read<OrderTypeProvider>().loadTypes();
+        });
+      }
       return const MainShell();
     }
 
+    _wasLoggedIn = false;
     return const LoginPage();
   }
 }

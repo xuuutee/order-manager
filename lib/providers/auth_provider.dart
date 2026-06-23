@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../config/app_config.dart';
 
 class AuthProvider extends ChangeNotifier {
   final SupabaseClient _client = Supabase.instance.client;
@@ -13,27 +12,24 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  /// 检查当前登录状态
+  /// 检查当前登录会话
   Future<void> checkAuth() async {
     final session = _client.auth.currentSession;
     _isLoggedIn = session != null;
+    debugPrint('🔐 Session check: ${_isLoggedIn ? "logged in" : "no session"}');
     notifyListeners();
   }
 
-  /// 使用共享账号登录
-  Future<bool> login() async {
+  /// 邮箱密码登录
+  Future<bool> login(String email, String password) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      debugPrint('🔐 Login attempt: ${AppConfig.sharedEmail}');
-      debugPrint('🔗 URL: ${AppConfig.supabaseUrl}');
-      debugPrint('🔑 Key prefix: ${AppConfig.supabaseAnonKey.substring(0, 16)}...');
-
       await _client.auth.signInWithPassword(
-        email: AppConfig.sharedEmail,
-        password: AppConfig.sharedPassword,
+        email: email.trim(),
+        password: password,
       );
       _isLoggedIn = true;
       _isLoading = false;
@@ -42,13 +38,13 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } on AuthException catch (e) {
       debugPrint('❌ Auth error: ${e.message} (code: ${e.statusCode})');
-      _error = '${e.message}';
+      _error = e.message;
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
       debugPrint('❌ Login failed: $e');
-      _error = '登录失败（${e.toString().substring(0, e.toString().length.clamp(0, 60))}）';
+      _error = '登录失败，请检查网络连接';
       _isLoading = false;
       notifyListeners();
       return false;
