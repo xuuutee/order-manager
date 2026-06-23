@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config/app_constants.dart';
 import '../models/order.dart';
 import '../utils/currency_formatter.dart';
 import 'status_chip.dart';
@@ -92,9 +93,9 @@ class OrderCard extends StatelessWidget {
               ),
               // 标记完成按钮（待处理/进行中 状态显示）
               if (onComplete != null &&
-                  order.status != '已完成' &&
-                  order.status != '已结算' &&
-                  order.status != '已取消') ...[
+                  order.status != OrderStatus.completed &&
+                  order.status != OrderStatus.settled &&
+                  order.status != OrderStatus.cancelled) ...[
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
@@ -115,7 +116,7 @@ class OrderCard extends StatelessWidget {
               ],
               // 恢复待处理按钮（已完成 状态显示，防返工）
               if (onUncomplete != null &&
-                  order.status == '已完成') ...[
+                  order.status == OrderStatus.completed) ...[
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,

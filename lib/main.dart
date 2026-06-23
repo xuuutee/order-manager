@@ -12,14 +12,27 @@ import 'pages/dashboard_page.dart';
 import 'pages/order_list_page.dart';
 import 'pages/order_form_page.dart';
 import 'pages/finance_stats_page.dart';
+import 'services/dns_resolver.dart';
+import 'services/supabase_http_client.dart';
 import 'widgets/update_checker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ---- 自定义 DNS 初始化 ----
+  // 创建 DoH DNS 解析器，预热关键域名
+  final dnsResolver = DnsResolver();
+  final supabaseHost = Uri.parse(AppConfig.supabaseUrl).host;
+  // 预热：提前解析 Supabase 域名，填充 DNS 缓存
+  await dnsResolver.warmup([supabaseHost]);
+
+  // 创建自定义 HTTP 客户端（对 *.supabase.co 走 DoH 直连）
+  final customHttpClient = SupabaseDnsHttpClient(dnsResolver: dnsResolver);
+
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
     publishableKey: AppConfig.supabaseAnonKey,
+    httpClient: customHttpClient,
   );
 
   runApp(const OrderManagerApp());

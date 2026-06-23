@@ -24,7 +24,7 @@ class StatsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  /// 加载仪表盘数据
+  /// 加载仪表盘数据（单个查询失败不影响其余数据展示）
   Future<void> loadDashboard() async {
     _isLoading = true;
     notifyListeners();
@@ -39,16 +39,17 @@ class StatsProvider extends ChangeNotifier {
         _service.totalIncome(),
         _service.pendingPayment(),
         _service.recentOrders(),
-      ]);
+      ], eagerError: false); // 全部完成后再检查，不因一个失败而丢弃其余
 
-      todayOrderCount = results[0] as int;
-      monthOrderCount = results[1] as int;
-      totalOrderCount = results[2] as int;
-      todayIncome = results[3] as double;
-      monthIncome = results[4] as double;
-      totalIncome = results[5] as double;
-      pendingPayment = results[6] as double;
-      recentOrders = results[7] as List<Order>;
+      // 逐个降级：成功的用实际值，失败的用默认值
+      todayOrderCount = _safeInt(results[0], 0);
+      monthOrderCount = _safeInt(results[1], 0);
+      totalOrderCount = _safeInt(results[2], 0);
+      todayIncome = _safeDouble(results[3], 0);
+      monthIncome = _safeDouble(results[4], 0);
+      totalIncome = _safeDouble(results[5], 0);
+      pendingPayment = _safeDouble(results[6], 0);
+      recentOrders = results[7] is List<Order> ? results[7] as List<Order> : [];
 
       _isLoading = false;
       _error = null;
@@ -58,6 +59,18 @@ class StatsProvider extends ChangeNotifier {
       _error = '加载数据失败，请下拉刷新重试';
       notifyListeners();
     }
+  }
+
+  static int _safeInt(dynamic v, int fallback) {
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return fallback;
+  }
+
+  static double _safeDouble(dynamic v, double fallback) {
+    if (v is double) return v;
+    if (v is num) return v.toDouble();
+    return fallback;
   }
 
   /// 加载财务统计数据

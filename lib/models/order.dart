@@ -1,3 +1,5 @@
+import '../config/app_constants.dart';
+
 class Order {
   final String id;
   final String orderNo;
@@ -36,24 +38,20 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      id: json['id'] as String,
-      orderNo: json['order_no'] as String,
-      customerName: json['customer_name'] as String,
-      contact: (json['contact'] as String?) ?? '',
-      orderTypeId: (json['order_type_id'] as String?) ?? '',
+      id: _safeString(json['id']),
+      orderNo: _safeString(json['order_no']),
+      customerName: _safeString(json['customer_name'], fallback: '未知客户'),
+      contact: _safeString(json['contact']),
+      orderTypeId: _safeString(json['order_type_id']),
       totalAmount: _toDouble(json['total_amount']),
       paidAmount: _toDouble(json['paid_amount']),
-      manager: (json['manager'] as String?) ?? '',
-      startDate: json['start_date'] != null
-          ? DateTime.tryParse(json['start_date'] as String)
-          : null,
-      deadline: json['deadline'] != null
-          ? DateTime.tryParse(json['deadline'] as String)
-          : null,
-      status: (json['status'] as String?) ?? '已发布',
-      remark: (json['remark'] as String?) ?? '',
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      manager: _safeString(json['manager']),
+      startDate: _safeDateTime(json['start_date']),
+      deadline: _safeDateTime(json['deadline']),
+      status: _safeString(json['status'], fallback: OrderStatus.published),
+      remark: _safeString(json['remark']),
+      createdAt: _safeDateTime(json['created_at']) ?? DateTime.now(),
+      updatedAt: _safeDateTime(json['updated_at']) ?? DateTime.now(),
     );
   }
 
@@ -112,5 +110,18 @@ class Order {
     if (v is num) return v.toDouble();
     if (v is String) return double.tryParse(v) ?? 0.0;
     return 0.0;
+  }
+
+  static String _safeString(dynamic v, {String fallback = ''}) {
+    if (v == null) return fallback;
+    if (v is String) return v;
+    return v.toString();
+  }
+
+  static DateTime? _safeDateTime(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    if (v is String) return DateTime.tryParse(v);
+    return null;
   }
 }

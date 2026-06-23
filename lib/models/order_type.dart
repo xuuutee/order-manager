@@ -15,11 +15,11 @@ class OrderType {
 
   factory OrderType.fromJson(Map<String, dynamic> json) {
     return OrderType(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      sortOrder: (json['sort_order'] as num).toInt(),
-      isActive: json['is_active'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id: _safeString(json['id']),
+      name: _safeString(json['name'], fallback: '未命名'),
+      sortOrder: _safeInt(json['sort_order']),
+      isActive: json['is_active'] is bool ? json['is_active'] as bool : true,
+      createdAt: _safeDateTime(json['created_at']) ?? DateTime.now(),
     );
   }
 
@@ -45,5 +45,26 @@ class OrderType {
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
     );
+  }
+
+  static String _safeString(dynamic v, {String fallback = ''}) {
+    if (v == null) return fallback;
+    if (v is String) return v;
+    return v.toString();
+  }
+
+  static int _safeInt(dynamic v, {int fallback = 0}) {
+    if (v == null) return fallback;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? fallback;
+    return fallback;
+  }
+
+  static DateTime? _safeDateTime(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    if (v is String) return DateTime.tryParse(v);
+    return null;
   }
 }

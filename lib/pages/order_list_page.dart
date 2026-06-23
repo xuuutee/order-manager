@@ -141,7 +141,7 @@ class _OrderListPageState extends State<OrderListPage> {
                                     final provider =
                                         context.read<OrderProvider>();
                                     final success = await provider
-                                        .updateStatus(order.id, '已完成');
+                                        .updateStatus(order.id, OrderStatus.completed);
                                     if (success && mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -158,7 +158,7 @@ class _OrderListPageState extends State<OrderListPage> {
                                     final provider =
                                         context.read<OrderProvider>();
                                     final success = await provider
-                                        .updateStatus(order.id, '待处理');
+                                        .updateStatus(order.id, OrderStatus.pending);
                                     if (success && mounted) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../config/app_constants.dart';
 import '../providers/order_provider.dart';
 import '../providers/stats_provider.dart';
 import '../utils/currency_formatter.dart';
@@ -153,7 +154,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     final provider =
                                         context.read<OrderProvider>();
                                     final success = await provider
-                                        .updateStatus(order.id, '已完成');
+                                        .updateStatus(order.id, OrderStatus.completed);
                                     if (success && mounted) {
                                       context
                                           .read<StatsProvider>()
@@ -164,7 +165,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                     final provider =
                                         context.read<OrderProvider>();
                                     final success = await provider
-                                        .updateStatus(order.id, '待处理');
+                                        .updateStatus(order.id, OrderStatus.pending);
                                     if (success && mounted) {
                                       context
                                           .read<StatsProvider>()
