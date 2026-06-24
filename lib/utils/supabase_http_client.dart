@@ -39,7 +39,8 @@ class SupabaseHttpClient extends http.BaseClient {
     } on SocketException catch (e) {
       throw http.ClientException(
         '网络连接失败 ($_supabaseHost): ${e.message}\n'
-        '请检查网络或运行 setup_hosts.bat',
+        'PC 端：右键管理员运行 setup_hosts.bat\n'
+        '手机端：设置 → 网络 → 私有DNS → 填入 dns.alidns.com',
       );
     }
   }
