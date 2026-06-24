@@ -1,0 +1,6 @@
+name = "order-manager-proxy"
+main = "cloudflare-worker.js"
+compatibility_date = "2025-06-24"
+
+[observability]
+enabled = true
